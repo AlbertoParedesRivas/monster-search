@@ -1,5 +1,6 @@
 import { Component } from 'react';
-// import logo from './logo.svg';
+import CardList from './components/card-list/card-list.component';
+import SearchBox from './components/search-box/search-box.component';
 import './App.css';
 
 class App extends Component {
@@ -9,47 +10,38 @@ class App extends Component {
             monsters: [],
             searchField: ""
         };
-        console.log("constructor()");
     }
     
     async componentDidMount(){
-        console.log("componentDidMount()");
         try {
             let response = await fetch("https://jsonplaceholder.typicode.com/users");
             let users = await response.json();
             this.setState(() => (
                 {monsters: users}
-                ), 
-                () => console.log(this.state)
-            );
+                ));
         } catch (error) {
             console.log(error);
         }
-        }
+    }
+
+    onSearchChange(event){
+        let searchField = event.target.value;
+        this.setState(() => {
+            return {searchField}
+        });
+    }
         
     render(){
-        console.log("render()");
-        let searchResult = this.state.monsters.filter(monster => {
-            return monster.name.toLowerCase().includes(this.state.searchField);
+        const { monsters, searchField } = this.state;
+        const { onSearchChange } = this;
+        let searchResult = monsters.filter(monster => {
+            return monster.name.toLowerCase().includes(searchField);
         }); 
         return (
             <div className="App">
-                <input 
-                    className="search-box" 
-                    type="search" 
-                    placeholder="search monsters"
-                    onChange={event => {
-                        let searchField = event.target.value;
-                        this.setState(() => {
-                            return {searchField}
-                        });
-                    }}
-                />
-                {
-                    searchResult.map((monster) => {
-                        return <div key={monster.id}><h1>{monster.name}</h1></div>;
-                    })
-                }
+                <h1 className='app-title'>Monster directory</h1>
+                <SearchBox className="monsters-search-box" placeholder="Search monsters." onChangeHandler = {onSearchChange.bind(this)}/>
+                <CardList monsters={searchResult}/>
             </div>
         );
     }
